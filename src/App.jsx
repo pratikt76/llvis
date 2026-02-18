@@ -48,18 +48,19 @@ export default function App() {
   const activeStep = steps[currentStep] ?? null;
   const activeLineIndex = activeStep?.lineIndex ?? -1;
 
-  // ── Parse code whenever it changes (only when not playing) ────────────────
-  const parseAndReset = useCallback((newCode) => {
+  // ── Parse code and show full result live ────────────────────────────────
+  const parseAndShow = useCallback((newCode) => {
     const { steps: parsed, errors: errs } = parseCode(newCode);
     setSteps(parsed);
     setErrors(errs);
-    setCurrentStep(-1);
+    // Auto-apply ALL steps so visualization shows immediately
+    setCurrentStep(parsed.length > 0 ? parsed.length - 1 : -1);
     setIsPlaying(false);
   }, []);
 
   // Parse on mount with sample code
   useEffect(() => {
-    parseAndReset(SAMPLE_CODE);
+    parseAndShow(SAMPLE_CODE);
   }, []); // eslint-disable-line
 
   // ── Auto-play timer ───────────────────────────────────────────────────────
@@ -87,7 +88,8 @@ export default function App() {
   // ── Control handlers ──────────────────────────────────────────────────────
   const handleRun = () => {
     if (steps.length === 0) return;
-    if (currentStep >= steps.length - 1) return;
+    // Reset to beginning and auto-play from step 0
+    setCurrentStep(-1);
     setIsPlaying(true);
   };
 
@@ -106,7 +108,7 @@ export default function App() {
 
   const handleCodeChange = (newCode) => {
     setCode(newCode);
-    parseAndReset(newCode);
+    parseAndShow(newCode);
   };
 
   // ── Resizable panel sizes ──────────────────────────────────────────────
