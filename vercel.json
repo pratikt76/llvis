@@ -3,8 +3,8 @@
     "outputDirectory": "dist",
     "rewrites": [
         {
-            "source": "/llvis/(.*)",
-            "destination": "https://llvis.vercel.app/"
+            "source": "/llvis/:path*",
+            "destination": "/:path*"
         }
     ]
 }
