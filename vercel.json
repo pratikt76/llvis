@@ -3,6 +3,14 @@
     "outputDirectory": "dist",
     "rewrites": [
         {
+            "source": "/llvis",
+            "destination": "/index.html"
+        },
+        {
+            "source": "/llvis/",
+            "destination": "/index.html"
+        },
+        {
             "source": "/llvis/:path*",
             "destination": "/:path*"
         }
