@@ -4,7 +4,7 @@
     "rewrites": [
         {
             "source": "/llvis/(.*)",
-            "destination": "/llvis/index.html"
+            "destination": "https://llvis.vercel.app/"
         }
     ]
 }
