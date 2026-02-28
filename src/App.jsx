@@ -146,35 +146,25 @@ export default function App() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="h-screen bg-[#030712] text-slate-100 flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#0a0a0a] text-neutral-200 flex flex-col overflow-hidden">
       {/* ── Header ── */}
-      <header className="border-b border-slate-800/60 px-4 py-2 flex items-center justify-between flex-shrink-0">
+      <header className="border-b border-[#222] px-4 py-2 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600
-                          flex items-center justify-center text-white font-bold text-sm shadow-lg
-                          shadow-indigo-500/30">
-            LL
-          </div>
+          <span className="text-sm font-semibold text-neutral-400 font-mono tracking-tight">LL</span>
           <div>
-            <h1 className="font-bold text-base gradient-text leading-tight">
+            <h1 className="font-medium text-sm text-neutral-200 leading-tight">
               Linked List Visualizer
             </h1>
-            <p className="text-xs text-slate-500">Java Memory &amp; Pointer Animator</p>
+            <p className="text-xs text-neutral-500">Java Memory &amp; Pointer Animator</p>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          Interactive
         </div>
       </header>
 
       {/* ── Main layout ── */}
-      <main ref={mainRef} className="flex-1 flex flex-row p-3 gap-0 overflow-hidden min-h-0">
+      <main ref={mainRef} className="flex-1 flex flex-row p-2 gap-0 overflow-hidden min-h-0">
 
         {/* ═══ LEFT COLUMN: Code + Controls + StepInfo ═══ */}
         <div className="flex flex-col gap-2 min-h-0 overflow-hidden" style={{ width: `${leftPct}%` }}>
-          {/* Code panel */}
           <div className="flex-1 min-h-0">
             <CodePanel
               code={code}
@@ -183,7 +173,6 @@ export default function App() {
             />
           </div>
 
-          {/* Controls */}
           <Controls
             isPlaying={isPlaying}
             currentStep={currentStep}
@@ -197,7 +186,6 @@ export default function App() {
             hasSteps={steps.length > 0}
           />
 
-          {/* Step info */}
           <StepInfo
             step={activeStep}
             stepIndex={currentStep}
@@ -206,27 +194,21 @@ export default function App() {
           />
         </div>
 
-        {/* ─── Horizontal resizer: Code ↔ Visualizer ─── */}
         <Resizer direction="horizontal" onResize={handleLeftResize} />
 
         {/* ═══ RIGHT COLUMN: Linked List + Memory ═══ */}
         <div ref={rightRef} className="flex-1 flex flex-col gap-0 min-w-0 min-h-0 overflow-hidden">
-
-          {/* Linked list visualization */}
           <div className="min-h-0 overflow-hidden" style={{ height: `${vizPct}%` }}>
             <LinkedListView state={memState} />
           </div>
 
-          {/* ─── Vertical resizer: Visualizer ↔ Memory ─── */}
           <Resizer direction="vertical" onResize={handleVizResize} />
 
-          {/* Stack + Heap side by side */}
           <div ref={memRef} className="flex-1 flex flex-row gap-0 min-h-0 overflow-hidden">
             <div className="min-w-0 overflow-hidden" style={{ width: `${stackPct}%` }}>
               <StackPanel stack={memState.stack} />
             </div>
 
-            {/* ─── Horizontal resizer: Stack ↔ Heap ─── */}
             <Resizer direction="horizontal" onResize={handleStackResize} />
 
             <div className="flex-1 min-w-0 overflow-hidden">
@@ -237,11 +219,8 @@ export default function App() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-slate-800/60 px-4 py-1 text-center text-xs text-slate-600 flex-shrink-0">
-        Linked List Visualizer · Stack{' '}
-        <span className="text-blue-500">■</span> Heap{' '}
-        <span className="text-purple-500">■</span> Active{' '}
-        <span className="text-yellow-500">■</span>
+      <footer className="border-t border-[#222] px-4 py-1 text-center text-xs text-neutral-600 flex-shrink-0">
+        Linked List Visualizer
       </footer>
     </div>
   );

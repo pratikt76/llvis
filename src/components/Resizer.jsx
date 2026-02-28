@@ -1,7 +1,6 @@
 /**
  * Resizer.jsx
  * A draggable divider handle for resizing adjacent panels.
- * Supports both horizontal (left-right) and vertical (top-bottom) splits.
  */
 import React, { useCallback, useRef, useEffect } from 'react';
 
@@ -39,15 +38,14 @@ export default function Resizer({ direction = 'horizontal', onResize }) {
         <div
             onMouseDown={onMouseDown}
             className={`flex-shrink-0 group relative z-30 ${isHorizontal
-                    ? 'w-2 cursor-col-resize hover:bg-indigo-500/30 active:bg-indigo-500/50'
-                    : 'h-2 cursor-row-resize hover:bg-indigo-500/30 active:bg-indigo-500/50'
+                ? 'w-2 cursor-col-resize hover:bg-[#333]/40 active:bg-[#444]/40'
+                : 'h-2 cursor-row-resize hover:bg-[#333]/40 active:bg-[#444]/40'
                 } transition-colors rounded-full`}
         >
-            {/* Visual indicator line */}
             <div
-                className={`absolute rounded-full bg-slate-600 group-hover:bg-indigo-400 transition-colors ${isHorizontal
-                        ? 'w-0.5 h-8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-                        : 'h-0.5 w-8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+                className={`absolute rounded-full bg-[#222] group-hover:bg-[#444] transition-colors ${isHorizontal
+                    ? 'w-px h-8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+                    : 'h-px w-8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
                     }`}
             />
         </div>

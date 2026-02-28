@@ -1,28 +1,19 @@
 /**
  * LinkedListView.jsx
  * Renders the linked list as animated node cards with SVG arrows.
- * Shows variable pointer badges (head, tail, first, etc.) above each node.
  */
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { buildChain, findHeadAddress, getVarsAtAddress } from '../lib/memoryModel';
 
-// Color scheme for well-known variable names
-const VAR_BADGE_COLORS = {
-    head: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-    tail: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
-};
-const DEFAULT_BADGE = 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40';
-
 function VarBadge({ name }) {
-    const cls = VAR_BADGE_COLORS[name] ?? DEFAULT_BADGE;
     return (
         <motion.span
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-            className={`inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-xs font-mono font-semibold ${cls}`}
+            className="inline-flex items-center gap-1 border border-[#333] rounded-full px-2 py-0.5 text-xs font-mono text-neutral-400 bg-[#1a1a1a]"
         >
             {name}
         </motion.span>
@@ -35,7 +26,7 @@ function NodeCard({ address, node, isActive, index, varLabels }) {
 
     return (
         <div className="flex flex-col items-center gap-2">
-            {/* Variable pointer badges above the node */}
+            {/* Variable pointer badges */}
             <div className="flex flex-wrap justify-center gap-1 min-h-[24px]">
                 <AnimatePresence>
                     {varLabels.map(name => (
@@ -44,12 +35,11 @@ function NodeCard({ address, node, isActive, index, varLabels }) {
                 </AnimatePresence>
             </div>
 
-            {/* Downward arrow from badge to node */}
             {varLabels.length > 0 && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-slate-500 text-sm leading-none"
+                    className="text-neutral-600 text-sm leading-none"
                 >
                     ↓
                 </motion.div>
@@ -58,35 +48,32 @@ function NodeCard({ address, node, isActive, index, varLabels }) {
             {/* Node card */}
             <motion.div
                 layout
-                initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.7 }}
+                exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 22, delay: index * 0.05 }}
-                className={`relative flex-shrink-0 rounded-xl border-2 overflow-hidden
-          ${isActive
-                        ? 'border-yellow-400 node-card-active'
-                        : 'border-indigo-500/60 node-card'
-                    }`}
-                style={{ minWidth: 120 }}
+                className={`relative flex-shrink-0 rounded-lg border overflow-hidden
+          ${isActive ? 'border-neutral-500' : 'border-[#333]'}`}
+                style={{ minWidth: 110 }}
             >
                 {/* Cycle badge */}
                 {isCycle && (
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full z-10">
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-neutral-600 text-white text-xs px-2 py-0.5 rounded-full z-10">
                         CYCLE ↩
                     </div>
                 )}
 
                 {/* Data section */}
-                <div className="bg-indigo-950/80 px-5 py-3 text-center">
-                    <div className="text-xs text-indigo-400 mb-1 font-mono">{realAddr}</div>
-                    <div className="text-2xl font-bold text-white">{node?.data ?? '?'}</div>
-                    <div className="text-xs text-slate-400 mt-1">data</div>
+                <div className="bg-[#1a1a1a] px-5 py-3 text-center">
+                    <div className="text-xs text-neutral-500 mb-1 font-mono">{realAddr}</div>
+                    <div className="text-xl font-semibold text-neutral-100">{node?.data ?? '?'}</div>
+                    <div className="text-xs text-neutral-600 mt-1">data</div>
                 </div>
 
                 {/* Next pointer section */}
-                <div className="bg-slate-900/80 px-5 py-2 text-center border-t border-indigo-800/40">
-                    <div className="text-xs text-slate-500">next</div>
-                    <div className="text-xs font-mono text-indigo-300 mt-0.5">
+                <div className="bg-[#151515] px-5 py-2 text-center border-t border-[#222]">
+                    <div className="text-xs text-neutral-600">next</div>
+                    <div className="text-xs font-mono text-neutral-400 mt-0.5">
                         {node?.next ?? 'null'}
                     </div>
                 </div>
@@ -100,11 +87,9 @@ export default function LinkedListView({ state }) {
     const containerRef = useRef(null);
     const [nodeRects, setNodeRects] = useState({});
 
-    // Find head and build chain
     const headAddr = findHeadAddress(state);
     const chain = headAddr ? buildChain(heap, headAddr) : [];
 
-    // Measure node positions for arrow drawing
     useEffect(() => {
         if (!containerRef.current) return;
         const cards = containerRef.current.querySelectorAll('[data-addr]');
@@ -127,23 +112,23 @@ export default function LinkedListView({ state }) {
 
     return (
         <div className="flex flex-col h-full">
-            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-3">
+            <h2 className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
                 Linked List
             </h2>
 
             <div
                 ref={containerRef}
-                className="flex-1 glass rounded-xl p-6 relative overflow-auto"
+                className="flex-1 panel rounded-lg p-5 relative overflow-auto"
             >
                 {isEmpty ? (
                     <div className="flex items-center justify-center h-full">
-                        <p className="text-slate-600 text-sm">
-                            No nodes yet — run the code to visualize
+                        <p className="text-neutral-600 text-sm">
+                            No nodes yet
                         </p>
                     </div>
                 ) : (
                     <>
-                        {/* SVG arrows layer — drawn between node card centers */}
+                        {/* SVG arrows */}
                         <svg
                             className="absolute inset-0 pointer-events-none"
                             style={{ width: '100%', height: '100%', overflow: 'visible' }}
@@ -151,23 +136,23 @@ export default function LinkedListView({ state }) {
                             <defs>
                                 <marker
                                     id="arrowhead"
-                                    markerWidth="8"
-                                    markerHeight="6"
-                                    refX="8"
-                                    refY="3"
+                                    markerWidth="7"
+                                    markerHeight="5"
+                                    refX="7"
+                                    refY="2.5"
                                     orient="auto"
                                 >
-                                    <polygon points="0 0, 8 3, 0 6" fill="#6366f1" />
+                                    <polygon points="0 0, 7 2.5, 0 5" fill="#555" />
                                 </marker>
                                 <marker
                                     id="arrowhead-active"
-                                    markerWidth="8"
-                                    markerHeight="6"
-                                    refX="8"
-                                    refY="3"
+                                    markerWidth="7"
+                                    markerHeight="5"
+                                    refX="7"
+                                    refY="2.5"
                                     orient="auto"
                                 >
-                                    <polygon points="0 0, 8 3, 0 6" fill="#facc15" />
+                                    <polygon points="0 0, 7 2.5, 0 5" fill="#888" />
                                 </marker>
                             </defs>
 
@@ -190,8 +175,8 @@ export default function LinkedListView({ state }) {
                                     <motion.line
                                         key={`${addr}->${nextAddr}`}
                                         x1={x1} y1={y1} x2={x2} y2={y2}
-                                        stroke={isActiveLine ? '#facc15' : '#6366f1'}
-                                        strokeWidth={isActiveLine ? 2.5 : 2}
+                                        stroke={isActiveLine ? '#888' : '#444'}
+                                        strokeWidth={1.5}
                                         markerEnd={isActiveLine ? 'url(#arrowhead-active)' : 'url(#arrowhead)'}
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
@@ -201,7 +186,7 @@ export default function LinkedListView({ state }) {
                             })}
                         </svg>
 
-                        {/* Node cards row — each wrapped in a column with badges above */}
+                        {/* Node cards */}
                         <div className="flex items-end gap-10 relative z-10 flex-wrap pt-2">
                             <AnimatePresence>
                                 {chain.map((addr, i) => {
@@ -227,11 +212,11 @@ export default function LinkedListView({ state }) {
                                 <motion.div
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="text-slate-500 font-mono text-sm flex items-center gap-2 mb-1 self-center"
+                                    className="text-neutral-600 font-mono text-sm flex items-center gap-2 mb-1 self-center"
                                     style={{ marginTop: 'auto' }}
                                 >
-                                    <span className="text-indigo-500">→</span>
-                                    <span className="border border-slate-700 rounded px-3 py-1 text-slate-400">
+                                    <span className="text-neutral-500">→</span>
+                                    <span className="border border-[#333] border-dashed rounded px-3 py-1 text-neutral-500 text-xs">
                                         null
                                     </span>
                                 </motion.div>

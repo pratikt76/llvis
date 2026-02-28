@@ -1,10 +1,6 @@
 /**
  * CodePanel.jsx
  * Code editor with Java syntax highlighting and auto-indentation.
- *
- * Uses a tokenizer to split each line into typed tokens, then renders
- * each token as a colored React <span>. A transparent textarea sits on top
- * to capture user input. Both share the same font/size/scroll.
  */
 import React, { useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,18 +35,18 @@ class Main {
     }
 }`;
 
-// ── Token types and colors ───────────────────────────────────────────────
+// ── Muted token colors ──────────────────────────────────────────────────
 const COLORS = {
-    keyword: '#818cf8', // indigo
-    type: '#c084fc', // purple
-    number: '#f59e0b', // amber
-    string: '#34d399', // emerald
-    comment: '#6b7280', // gray
-    method: '#60a5fa', // blue
-    property: '#f472b6', // pink
-    punct: '#94a3b8', // slate
-    op: '#64748b', // dim slate
-    text: '#e2e8f0', // default
+    keyword: '#7c8baa',
+    type: '#9f8ec2',
+    number: '#c9a06c',
+    string: '#7dab8f',
+    comment: '#555',
+    method: '#8aabcc',
+    property: '#b89aaf',
+    punct: '#666',
+    op: '#555',
+    text: '#bbb',
 };
 
 const KEYWORDS = new Set([
@@ -61,12 +57,7 @@ const KEYWORDS = new Set([
 
 const TYPES = new Set(['int', 'String', 'Node', 'null', 'this', 'args']);
 
-/**
- * Tokenize a single line of Java code into an array of { text, color } objects.
- * This avoids HTML corruption by never doing regex-on-HTML.
- */
 function tokenizeLine(line) {
-    // Full-line comment
     if (/^\s*\/\//.test(line)) {
         return [{ text: line, color: COLORS.comment, italic: true }];
     }
@@ -77,7 +68,6 @@ function tokenizeLine(line) {
     while (i < line.length) {
         const ch = line[i];
 
-        // Whitespace
         if (/\s/.test(ch)) {
             let j = i;
             while (j < line.length && /\s/.test(line[j])) j++;
@@ -86,23 +76,20 @@ function tokenizeLine(line) {
             continue;
         }
 
-        // Inline comment //
         if (ch === '/' && line[i + 1] === '/') {
             tokens.push({ text: line.slice(i), color: COLORS.comment, italic: true });
             break;
         }
 
-        // String literal "..."
         if (ch === '"') {
             let j = i + 1;
             while (j < line.length && line[j] !== '"') j++;
-            j++; // include closing quote
+            j++;
             tokens.push({ text: line.slice(i, j), color: COLORS.string });
             i = j;
             continue;
         }
 
-        // Numbers
         if (/\d/.test(ch) || (ch === '-' && /\d/.test(line[i + 1] || ''))) {
             let j = i;
             if (ch === '-') j++;
@@ -112,17 +99,14 @@ function tokenizeLine(line) {
             continue;
         }
 
-        // Identifiers / keywords
         if (/[a-zA-Z_$]/.test(ch)) {
             let j = i;
             while (j < line.length && /[\w$]/.test(line[j])) j++;
             const word = line.slice(i, j);
 
-            // Check if preceded by a dot → property
             const prevToken = tokens[tokens.length - 1];
             const isDotAccess = prevToken && prevToken.text === '.';
 
-            // Check if followed by ( → method call
             let k = j;
             while (k < line.length && line[k] === ' ') k++;
             const isMethodCall = line[k] === '(';
@@ -146,28 +130,24 @@ function tokenizeLine(line) {
             continue;
         }
 
-        // Dot
         if (ch === '.') {
             tokens.push({ text: '.', color: COLORS.op });
             i++;
             continue;
         }
 
-        // Brackets / parens / braces
         if ('{}()[]'.includes(ch)) {
             tokens.push({ text: ch, color: COLORS.punct });
             i++;
             continue;
         }
 
-        // Operators and semicolons
         if ('=;+-*/<>!&|'.includes(ch)) {
             tokens.push({ text: ch, color: COLORS.op });
             i++;
             continue;
         }
 
-        // Anything else
         tokens.push({ text: ch, color: COLORS.text });
         i++;
     }
@@ -175,7 +155,6 @@ function tokenizeLine(line) {
     return tokens;
 }
 
-/** Render a tokenized line as colored React spans */
 function HighlightedLine({ line }) {
     const tokens = tokenizeLine(line);
     return (
@@ -203,7 +182,6 @@ export default function CodePanel({ code, onCodeChange, activeLineIndex }) {
     const gutterRef = useRef(null);
     const lines = code.split('\n');
 
-    // Sync scroll between textarea, overlay, and gutter
     const handleScroll = useCallback(() => {
         const ta = textareaRef.current;
         if (!ta) return;
@@ -223,7 +201,6 @@ export default function CodePanel({ code, onCodeChange, activeLineIndex }) {
         return () => ta.removeEventListener('scroll', handleScroll);
     }, [handleScroll]);
 
-    // Handle Tab key (insert 4 spaces) and Enter key (auto-indent)
     const handleKeyDown = useCallback((e) => {
         const ta = e.target;
         const { selectionStart, selectionEnd, value } = ta;
@@ -259,22 +236,19 @@ export default function CodePanel({ code, onCodeChange, activeLineIndex }) {
     return (
         <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-1">
-                <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-widest">
-                    Java Code
+                <h2 className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Code
                 </h2>
-                <span className="text-xs text-slate-500">Live preview</span>
             </div>
 
-            {/* Editor container */}
             <div
-                className="flex-1 flex rounded-xl glass overflow-hidden min-h-0"
+                className="flex-1 flex rounded-lg panel overflow-hidden min-h-0"
                 style={{ fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace", fontSize: 13, lineHeight: '22px' }}
             >
-
                 {/* Line number gutter */}
                 <div
                     ref={gutterRef}
-                    className="flex-shrink-0 overflow-hidden select-none bg-slate-900/60 border-r border-slate-700/40"
+                    className="flex-shrink-0 overflow-hidden select-none bg-[#111] border-r border-[#222]"
                     style={{ width: 38, paddingTop: 4 }}
                     aria-hidden="true"
                 >
@@ -282,8 +256,8 @@ export default function CodePanel({ code, onCodeChange, activeLineIndex }) {
                         <div
                             key={i}
                             className={`flex items-center justify-end pr-2 transition-colors duration-100 ${i === activeLineIndex
-                                    ? 'text-yellow-400 font-bold'
-                                    : 'text-slate-600'
+                                ? 'text-neutral-300 font-medium'
+                                : 'text-neutral-600'
                                 }`}
                             style={{ height: 22, fontSize: 11 }}
                         >
@@ -292,10 +266,9 @@ export default function CodePanel({ code, onCodeChange, activeLineIndex }) {
                     ))}
                 </div>
 
-                {/* Code area: highlighted overlay + transparent textarea stacked */}
+                {/* Code area */}
                 <div className="relative flex-1 min-w-0 overflow-hidden">
-
-                    {/* Active line highlight stripe */}
+                    {/* Active line highlight */}
                     <AnimatePresence>
                         {activeLineIndex >= 0 && (
                             <motion.div
@@ -304,8 +277,8 @@ export default function CodePanel({ code, onCodeChange, activeLineIndex }) {
                                 style={{
                                     top: activeLineIndex * 22 + 4,
                                     height: 22,
-                                    background: 'rgba(250,204,21,0.06)',
-                                    borderLeft: '2px solid rgba(250,204,21,0.4)',
+                                    background: 'rgba(255,255,255,0.03)',
+                                    borderLeft: '2px solid #555',
                                     zIndex: 5,
                                 }}
                                 initial={{ opacity: 0 }}
@@ -316,7 +289,7 @@ export default function CodePanel({ code, onCodeChange, activeLineIndex }) {
                         )}
                     </AnimatePresence>
 
-                    {/* Syntax-highlighted overlay — colored React spans, NOT dangerouslySetInnerHTML */}
+                    {/* Syntax-highlighted overlay */}
                     <div
                         ref={overlayRef}
                         className="absolute inset-0 overflow-hidden pointer-events-none"
@@ -330,7 +303,7 @@ export default function CodePanel({ code, onCodeChange, activeLineIndex }) {
                         ))}
                     </div>
 
-                    {/* Transparent textarea on top — captures all input */}
+                    {/* Transparent textarea */}
                     <textarea
                         ref={textareaRef}
                         className="absolute inset-0 w-full h-full bg-transparent resize-none outline-none"
@@ -341,7 +314,7 @@ export default function CodePanel({ code, onCodeChange, activeLineIndex }) {
                             overflowWrap: 'normal',
                             overflowX: 'auto',
                             color: 'transparent',
-                            caretColor: '#818cf8',
+                            caretColor: '#888',
                             zIndex: 10,
                         }}
                         value={code}
